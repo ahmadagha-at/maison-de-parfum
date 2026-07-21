@@ -72,17 +72,25 @@ The frontend also requests server-side reconciliation immediately after payment,
 
 The administration dashboard uses repository-level aggregate queries to calculate:
 
-- revenue from confirmed, shipped, and delivered orders
-- total order count
-- quantity of paid products sold
-- monthly paid revenue
-- the three best-selling paid products
+- Revenue from confirmed, shipped, and delivered orders
+- Total order count
+- Quantity of paid products sold
+- Monthly paid revenue
+- The three best-selling paid products
 
 Recharts visualizes the results with bar and pie charts.
 
 ## Configuration Before Running
 
-Prerequisites are Java 17, Maven, Node.js 20.19 or newer, npm, PostgreSQL, and a Stripe test account. Docker and the Stripe CLI are optional but recommended for local development.
+Prerequisites:
+
+- Java 17
+- Maven
+- Node.js 20.19 or newer
+- npm
+- PostgreSQL
+- Stripe test account
+- Stripe CLI for optional local webhook testing
 
 Copy the root example configuration:
 
@@ -90,19 +98,26 @@ Copy the root example configuration:
 cp .env.example .env
 ```
 
-On Windows PowerShell, use:
+On Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Complete the values in `.env`:
+Complete the following values in `.env`:
 
-- `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD`
-- `JWT_SECRET` as a Base64-encoded secret of at least 256 bits
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `CORS_ALLOWED_ORIGIN`
+```env
+DB_URL=jdbc:postgresql://localhost:5432/eShopDB
+DB_USERNAME=postgres
+DB_PASSWORD=your_database_password
+JWT_SECRET=your_base64_encoded_jwt_secret
+STRIPE_SECRET_KEY=sk_test_your_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+CORS_ALLOWED_ORIGIN=http://localhost:5173
+AUTH_COOKIE_SECURE=false
+```
+
+The JWT secret must be Base64-encoded and contain at least 256 bits of entropy.
 
 Create the frontend configuration separately:
 
@@ -110,20 +125,46 @@ Create the frontend configuration separately:
 Copy-Item frontend/.env.example frontend/.env
 ```
 
-Set `VITE_STRIPE_PUBLIC_KEY` in `frontend/.env`. The Stripe secret key must only be used by the backend; only the publishable key may be exposed to the frontend.
+Set the Stripe publishable key in `frontend/.env`:
 
-For local webhook testing with the Stripe CLI:
-
-```bash
-stripe listen --forward-to localhost:8080/api/v1/stripe/webhook
+```env
+VITE_STRIPE_PUBLIC_KEY=pk_test_your_publishable_key
 ```
 
-Copy the generated `whsec_...` value into `STRIPE_WEBHOOK_SECRET` in `.env`.
+The Stripe secret key and webhook signing secret belong only in the backend configuration. They must never be exposed to the frontend or committed to Git.
+
+### Local Stripe Webhook
+
+Start the Stripe CLI listener:
+
+```bash
+stripe listen --forward-to http://localhost:8080/api/v1/stripe/webhook
+```
+
+Stripe will display a signing secret beginning with `whsec_`. Copy it into `STRIPE_WEBHOOK_SECRET` in the root `.env` file and restart the backend.
+
+Keep the Stripe CLI running while testing payments locally.
 
 ## Running the Application
 
-run backend 
-start the frontend from the `frontend` directory:
+### Backend
+
+Start the Spring Boot backend from the `backend` directory:
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+
+The backend runs at:
+
+```text
+http://localhost:8080
+```
+
+### Frontend
+
+Open a second terminal and start the frontend:
 
 ```bash
 cd frontend
@@ -131,9 +172,17 @@ npm install
 npm run dev
 ```
 
+The frontend runs at:
+
+```text
+http://localhost:5173
+```
+
 ## Creating an Administrator
 
-New accounts receive `ROLE_USER` automatically. For local development, register normally and find the account in PostgreSQL:
+Newly registered accounts automatically receive `ROLE_USER`.
+
+For local development, register a normal account and find its ID in PostgreSQL:
 
 ```sql
 SELECT id, email
@@ -141,37 +190,52 @@ FROM users
 WHERE email = 'your@email.com';
 ```
 
-Assign the administrator role using the returned ID:
+Assign `ROLE_ADMIN` using the returned user ID:
 
 ```sql
 INSERT INTO user_roles (user_id, role)
 VALUES (1, 'ROLE_ADMIN');
 ```
 
-Log out and sign in again to receive a new access token containing `ROLE_ADMIN`.
+Replace `1` with the actual user ID.
 
-## Testing and Continuous Integration
+Log out and sign in again to receive a new access token containing the administrator role. The protected administration dashboard will then become available.
 
-Run backend tests with:
+## Testing
+
+Run the backend tests:
 
 ```bash
 cd backend
 mvn test
 ```
 
-Run the frontend production build and dependency audit with:
+Run the frontend production build:
 
 ```bash
 cd frontend
 npm run build
+```
+
+Check frontend dependencies for known vulnerabilities:
+
+```bash
 npm audit
 ```
 
-GitHub Actions executes the backend tests, frontend build, and frontend security audit for pushes and pull requests.
-
 ## Known Scope
 
-Stripe is configured for test-mode development. Shipping-state management and refund processing are not part of the current user interface. Production deployment should additionally provide HTTPS, `AUTH_COOKIE_SECURE=true`, managed secrets, database migrations, monitoring, and a dedicated administrator-provisioning process.
+Stripe is configured for test-mode development. Shipping-state management and refund processing are not part of the current user interface.
+
+A production deployment should additionally provide:
+
+- HTTPS
+- `AUTH_COOKIE_SECURE=true`
+- Managed secrets
+- Database migrations
+- Monitoring and logging
+- Rate limiting
+- A dedicated administrator-provisioning process
 
 ## Technology Stack
 
