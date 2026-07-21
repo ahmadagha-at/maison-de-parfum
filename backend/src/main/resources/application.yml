@@ -1,0 +1,63 @@
+spring:
+  config:
+    import: optional:file:../.env[.properties],optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/eShopDB}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+
+application:
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      access-expiration: ${JWT_ACCESS_EXPIRATION_MS:900000}
+      refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+    cookie-secure: ${AUTH_COOKIE_SECURE:false}
+    refresh-cleanup-cron: ${REFRESH_TOKEN_CLEANUP_CRON:0 0 3 * * *}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGIN:http://localhost:5173}
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+  orders:
+    pending-timeout-minutes: ${PENDING_ORDER_TIMEOUT_MINUTES:30}
+    cleanup-interval-ms: ${ORDER_CLEANUP_INTERVAL_MS:300000}
+
+logging:
+  level:
+    root: INFO
+    com.parfumshop: INFO
+    org.springframework.security: INFO
