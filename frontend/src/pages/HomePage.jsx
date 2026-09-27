@@ -14,7 +14,7 @@ const HomePage = () => (
 
       <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
         <p className="font-sans text-xs text-gold-400 tracking-[0.3em] uppercase mb-6">
-          Maison de Parfum — Est. 2024
+          Maison de Parfum
         </p>
         <h1 className="font-serif text-5xl sm:text-7xl font-semibold text-cream-100 leading-tight mb-6">
           The Art of<br />
