@@ -17,20 +17,6 @@ const Footer = () => (
           </p>
         </div>
 
-        {/* Links */}
-        <div>
-          <h4 className="font-sans text-xs text-charcoal-400 uppercase tracking-widest mb-4">Navigation</h4>
-          <ul className="space-y-2">
-            {[['/', 'Home'], ['/products', 'Collection'], ['/login', 'Sign In'], ['/register', 'Register']].map(([to, label]) => (
-              <li key={to}>
-                <Link to={to} className="font-sans text-sm text-charcoal-300 hover:text-gold-300 transition-colors">
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
         {/* Legal */}
         <div>
           <h4 className="font-sans text-xs text-charcoal-400 uppercase tracking-widest mb-4">Legal</h4>
@@ -45,19 +31,12 @@ const Footer = () => (
 
         {/* Contact */}
         <div>
-          <h4 className="font-sans text-xs text-charcoal-400 uppercase tracking-widest mb-4">Contact</h4>
-          <ul className="space-y-2">
-            <li>
-              <a href="mailto:support@maisondeparfum.de" className="font-sans text-sm text-charcoal-300 hover:text-gold-300 transition-colors">
-                support@maisondeparfum.de
-              </a>
-            </li>
-            <li>
-              <a href="tel:+49123456789" className="font-sans text-sm text-charcoal-300 hover:text-gold-300 transition-colors">
-                +49 123 456789
-              </a>
-            </li>
-          </ul>
+          <h4 className="font-sans text-xs text-charcoal-400 uppercase tracking-widest mb-4">
+            Portfolio Project
+          </h4>
+          <p className="font-sans text-sm text-charcoal-400 leading-relaxed">
+            This is a demonstration project. No real products are sold and no real orders are processed.
+          </p>
         </div>
       </div>
 

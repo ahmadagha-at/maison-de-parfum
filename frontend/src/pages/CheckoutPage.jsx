@@ -74,14 +74,11 @@ const CheckoutPage = () => {
         <p className="font-sans text-sm text-charcoal-300 mb-2">
           Your order #{orderId} has been confirmed.
         </p>
-        <p className="font-sans text-sm text-charcoal-400 mb-10">
-          You will receive updates as your fragrance is prepared for dispatch.
+        <p className="font-sans text-sm text-charcoal-400 mb-4">
+          This test order is now available in your order history.
         </p>
         <p className="font-sans text-xs text-charcoal-500 mb-10">
-          Need help with your order?{' '}
-          <a href="mailto:support@maisondeparfum.de" className="hover:text-gold-300">support@maisondeparfum.de</a>
-          {' · '}
-          <a href="tel:+49123456789" className="hover:text-gold-300">+49 123 456789</a>
+          Portfolio demonstration — no real payment or shipment is processed.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button onClick={() => navigate('/my-orders')}
@@ -157,10 +154,7 @@ const CheckoutPage = () => {
                 )}
               </div>
               <p className="font-sans text-xs text-charcoal-500 mt-5">
-                Problems with your order or payment?{' '}
-                <a href="mailto:support@maisondeparfum.de" className="hover:text-gold-300">support@maisondeparfum.de</a>
-                {' · '}
-                <a href="tel:+49123456789" className="hover:text-gold-300">+49 123 456789</a>
+                Stripe test mode is used. No real payment will be processed.
               </p>
             </>
           )}

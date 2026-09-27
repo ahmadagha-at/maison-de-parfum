@@ -75,7 +75,7 @@ const HomePage = () => (
       <div className="max-w-3xl mx-auto text-center px-4">
         <h2 className="font-serif text-4xl text-cream-100 mb-6">Begin Your Olfactory Journey</h2>
         <p className="font-sans text-sm text-charcoal-300 mb-8 leading-relaxed">
-          Over 50 curated fragrances await. From woody orientals to airy florals — find the scent that defines you.
+          A curated collection of fragrances awaits. From woody orientals to airy florals — find the scent that defines you.
         </p>
         <Link to="/products"
           className="font-sans text-sm px-10 py-3.5 bg-gold-500 text-charcoal-950 hover:bg-gold-400 rounded transition-all duration-300 font-medium tracking-wide inline-block shadow-xl shadow-gold-500/20">

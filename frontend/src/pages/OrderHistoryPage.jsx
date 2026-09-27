@@ -158,10 +158,7 @@ const OrderHistoryPage = () => {
 
       <div className="mt-10 pt-6 border-t border-charcoal-800 text-center">
         <p className="font-sans text-xs text-charcoal-500">
-          Questions about an order?{' '}
-          <a href="mailto:support@maisondeparfum.de" className="hover:text-gold-300">support@maisondeparfum.de</a>
-          {' · '}
-          <a href="tel:+49123456789" className="hover:text-gold-300">+49 123 456789</a>
+          Portfolio demonstration — orders and payments shown here are test data.
         </p>
       </div>
     </div>
