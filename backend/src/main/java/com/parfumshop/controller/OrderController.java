@@ -66,6 +66,12 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/admin/{orderId}/refund")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<OrderResponse> refundOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok(orderService.refundOrder(orderId));
+    }
+
     @PostMapping("/{orderId}/confirm-payment")
     public ResponseEntity<OrderResponse> confirmPayment(
             @PathVariable Long orderId,

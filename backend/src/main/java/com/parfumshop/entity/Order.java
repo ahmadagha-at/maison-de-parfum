@@ -43,7 +43,11 @@ public class Order {
     @Column(unique = true)
     private String stripePaymentIntentId;
 
+    @Column(unique = true)
+    private String stripeRefundId;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
 }

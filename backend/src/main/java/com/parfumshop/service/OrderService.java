@@ -21,6 +21,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.stripe.model.Refund;
+import com.stripe.net.RequestOptions;
+import com.stripe.param.RefundCreateParams;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -142,7 +145,7 @@ public class OrderService {
             if (!cancelPendingOrder(order)) {
                 throw new IllegalStateException("A successfully paid order cannot be deleted");
             }
-        } else if (order.getStatus() != OrderStatus.CANCELLED) {
+        } else if (order.getStatus() != OrderStatus.CANCELLED && order.getStatus() != OrderStatus.REFUNDED) {
             throw new IllegalStateException("Paid orders must be cancelled or refunded instead of deleted");
         }
 
@@ -287,5 +290,56 @@ public class OrderService {
                 .clientSecret(clientSecret)
                 .createdAt(order.getCreatedAt())
                 .build();
+    }
+
+    @Transactional
+    public OrderResponse refundOrder(Long orderId) {
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+
+        if (order.getStatus() == OrderStatus.REFUNDED) {
+            return mapToResponse(order);
+        }
+
+        if (order.getStatus() != OrderStatus.CONFIRMED
+                && order.getStatus() != OrderStatus.SHIPPED
+                && order.getStatus() != OrderStatus.DELIVERED) {
+            throw new IllegalStateException("Only paid orders can be refunded");
+        }
+
+        if (order.getStripePaymentIntentId() == null) {
+            throw new IllegalStateException("The order has no Stripe payment to refund");
+        }
+
+        try {
+            Refund refund = order.getStripeRefundId() == null
+                    ? Refund.create(
+                    RefundCreateParams.builder()
+                            .setPaymentIntent(order.getStripePaymentIntentId())
+                            .build(),
+                    RequestOptions.builder()
+                            .setIdempotencyKey("order-refund-" + order.getId())
+                            .build()
+            )
+                    : Refund.retrieve(order.getStripeRefundId());
+
+            order.setStripeRefundId(refund.getId());
+
+            if ("succeeded".equals(refund.getStatus())) {
+                restoreStock(order);
+                order.setStatus(OrderStatus.REFUNDED);
+            } else if ("failed".equals(refund.getStatus())
+                    || "canceled".equals(refund.getStatus())) {
+                throw new IllegalStateException(
+                        "Stripe refund failed: " + refund.getStatus()
+                );
+            }
+
+            return mapToResponse(order);
+        } catch (IllegalStateException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Could not verify the Stripe refund", ex);
+        }
     }
 }
