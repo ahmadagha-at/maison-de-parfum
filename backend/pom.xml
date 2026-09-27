@@ -26,7 +26,7 @@
         <maven.compiler.release>17</maven.compiler.release>
 
         <!-- Dependency versions -->
-        <jjwt.version>0.12.5</jjwt.version>
+        <jjwt.version>0.13.0</jjwt.version>
         <lombok.version>1.18.46</lombok.version>
         <stripe.version>24.22.0</stripe.version>
 
