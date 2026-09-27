@@ -59,11 +59,14 @@ public class OrderService {
                 .items(orderItems)
                 .build();
 
-        Order savedOrder = orderRepository.save(order);
-
         for (OrderItemRequest itemRequest : request.getItems()) {
-            Product product = productRepository.findActiveByIdForUpdate(itemRequest.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product", "id", itemRequest.getProductId()));
+            Product product = productRepository
+                    .findActiveByIdForUpdate(itemRequest.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Product",
+                            "id",
+                            itemRequest.getProductId()
+                    ));
 
             if (product.getStockQuantity() < itemRequest.getQuantity()) {
                 throw new InsufficientStockException(
@@ -73,15 +76,15 @@ public class OrderService {
                 );
             }
 
-            // Decrement stock
-            product.setStockQuantity(product.getStockQuantity() - itemRequest.getQuantity());
-            productRepository.save(product);
+            product.setStockQuantity(
+                    product.getStockQuantity() - itemRequest.getQuantity()
+            );
 
             BigDecimal subtotal = product.getPrice()
                     .multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
 
             OrderItem orderItem = OrderItem.builder()
-                    .order(savedOrder)
+                    .order(order)
                     .product(product)
                     .quantity(itemRequest.getQuantity())
                     .unitPrice(product.getPrice())
@@ -92,28 +95,30 @@ public class OrderService {
             totalAmount = totalAmount.add(subtotal);
         }
 
-        savedOrder.setItems(orderItems);
-        savedOrder.setTotalAmount(totalAmount);
-        orderRepository.save(savedOrder);
 
-        // Create Stripe PaymentIntent
+        order.setTotalAmount(totalAmount);
+        Order savedOrder = orderRepository.saveAndFlush(order);
+
         String clientSecret;
+
         try {
-            PaymentIntentCreateParams params =
-                    PaymentIntentCreateParams.builder()
-                            // Amount in cents
-                            .setAmount(totalAmount.multiply(new BigDecimal(100)).longValue())
-                            .setCurrency("eur")
-                            .putMetadata("orderId", savedOrder.getId().toString())
-                            .putMetadata("userId", user.getId().toString())
-                            .build();
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount(
+                            totalAmount.multiply(new BigDecimal("100")).longValueExact()
+                    )
+                    .setCurrency("eur")
+                    .putMetadata("orderId", savedOrder.getId().toString())
+                    .putMetadata("userId", user.getId().toString())
+                    .build();
 
             PaymentIntent intent = PaymentIntent.create(params);
             savedOrder.setStripePaymentIntentId(intent.getId());
-            orderRepository.save(savedOrder);
             clientSecret = intent.getClientSecret();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create Stripe PaymentIntent", e);
+            throw new RuntimeException(
+                    "Failed to create Stripe PaymentIntent",
+                    e
+            );
         }
 
         return mapToResponseWithSecret(savedOrder, clientSecret);
