@@ -97,10 +97,17 @@ const OrderHistoryPage = () => {
                     €{parseFloat(order.totalAmount).toFixed(2)}
                   </p>
                 </div>
-                <div>
+                <div className="max-w-xs">
                   <span className={`font-sans text-xs px-3 py-1 rounded-full border ${getStatusColor(order.status)}`}>
                     {order.status}
                   </span>
+
+                  {order.status === 'PENDING' && (
+                      <p className="font-sans text-xs text-amber-400 mt-2">
+                        Awaiting payment. After at least 30 minutes, an automatic check
+                        cancels unpaid orders and releases the reserved stock.
+                      </p>
+                  )}
                 </div>
               </div>
 
