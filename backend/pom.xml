@@ -28,7 +28,7 @@
         <!-- Dependency versions -->
         <jjwt.version>0.12.5</jjwt.version>
         <lombok.version>1.18.46</lombok.version>
-        <stripe.version>24.22.0</stripe.version>
+        <stripe.version>33.4.2</stripe.version>
 
         <!-- Consistent source encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
