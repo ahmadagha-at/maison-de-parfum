@@ -1,4 +1,6 @@
 # Maison de Parfum E-Commerce
+### Demo loading time
+<p style="color: red;">The demo runs on free hosting, so the first request after a period of inactivity may take a little longer. Subsequent requests should be faster.</p>
 the link to the app: <link>https://maison-de-parfum-three.vercel.app/</link>
 <br><br>
 Maison de Parfum is a full-stack e-commerce application for browsing and purchasing luxury fragrances. It combines a responsive React storefront with a secured Spring Boot REST API, PostgreSQL persistence, Stripe payment processing, and a role-based administration area.
